@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Instagram投稿ジェネレーター｜飯塚BASE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
@@ -21,15 +21,18 @@
     --danger: #f87171;
     --radius: 12px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; -webkit-text-size-adjust: 100%; }
 
   header {
-    padding: 18px 24px;
+    padding: 14px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    text-align: center;
     position: sticky;
     top: 0;
     background: rgba(15,15,15,0.95);
@@ -38,27 +41,28 @@
   }
   .logo {
     font-family: 'Syne', sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 800;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .logo-sub { font-size: 12px; color: var(--text3); margin-left: auto; }
+  .logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-  main { max-width: 660px; margin: 0 auto; padding: 28px 20px 80px; }
+  main { max-width: 600px; margin: 0 auto; padding: 20px 16px 80px; }
 
   .apikey-section {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 24px;
+    padding: 16px;
+    margin-bottom: 20px;
   }
-  .apikey-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .apikey-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .apikey-label { font-size: 13px; font-weight: 500; }
   .apikey-status { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); display: inline-block; flex-shrink: 0; }
   .dot.ok { background: var(--success); }
   .apikey-row { display: flex; gap: 8px; }
 
@@ -68,11 +72,13 @@
     border-radius: 8px;
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px;
-    padding: 10px 12px;
+    font-size: 16px;
+    padding: 12px;
     outline: none;
     transition: border-color 0.2s;
     width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
   }
   input:focus, select:focus { border-color: var(--accent); }
 
@@ -82,29 +88,28 @@
     border-radius: 8px;
     color: var(--text2);
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    padding: 10px 16px;
+    font-size: 14px;
+    padding: 12px 16px;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s;
     flex-shrink: 0;
   }
-  .save-btn:hover { border-color: var(--accent); color: var(--accent); }
   .apikey-hint { font-size: 11px; color: var(--text3); margin-top: 8px; line-height: 1.6; }
   .apikey-hint a { color: var(--accent); text-decoration: none; }
 
   .drop-zone {
     border: 1.5px dashed var(--border);
     border-radius: var(--radius);
-    padding: 44px 24px;
+    padding: 40px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
     background: var(--surface);
     margin-bottom: 16px;
   }
-  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: rgba(255,107,53,0.04); }
-  .drop-icon { font-size: 38px; margin-bottom: 12px; display: block; }
+  .drop-zone.drag { border-color: var(--accent); background: rgba(255,107,53,0.04); }
+  .drop-icon { font-size: 40px; margin-bottom: 12px; display: block; }
   .drop-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
   .drop-sub { font-size: 13px; color: var(--text2); }
 
@@ -116,102 +121,76 @@
     border: 1px solid var(--border);
     position: relative;
   }
-  #previewImg { width: 100%; max-height: 280px; object-fit: contain; background: var(--surface); display: block; }
+  #previewImg { width: 100%; max-height: 260px; object-fit: contain; background: var(--surface); display: block; }
   .change-btn {
     position: absolute; top: 10px; right: 10px;
     background: rgba(0,0,0,0.75); border: 1px solid var(--border);
-    color: var(--text2); font-size: 12px; padding: 5px 10px;
-    border-radius: 6px; cursor: pointer; backdrop-filter: blur(6px);
+    color: var(--text2); font-size: 13px; padding: 6px 12px;
+    border-radius: 6px; cursor: pointer;
   }
-  .change-btn:hover { color: var(--text); }
 
-  .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .opt-group label { display: block; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .extra-wrap { margin-bottom: 18px; }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; font-size: 12px; }
+  .select-wrap select { padding-right: 32px; }
+
+  .extra-wrap { margin-bottom: 16px; }
   .extra-wrap label { display: block; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 
   .gen-btn {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
     border: none;
     border-radius: var(--radius);
     color: #000;
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.1s;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    -webkit-appearance: none;
   }
-  .gen-btn:hover { opacity: 0.9; }
-  .gen-btn:active { transform: scale(0.99); }
+  .gen-btn:active { transform: scale(0.98); opacity: 0.9; }
   .gen-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  .loading-wrap { display: none; text-align: center; padding: 32px 0; margin-bottom: 24px; }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 14px;
-  }
+  .loading-wrap { display: none; text-align: center; padding: 32px 0; margin-bottom: 20px; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-size: 14px; color: var(--text2); }
 
   .result-section { display: none; animation: fadeUp 0.35s ease; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .result-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
-  .result-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 16px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
+  .result-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+  .result-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); }
   .result-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-  .copy-btn {
-    background: none; border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text2); font-family: 'Noto Sans JP', sans-serif; font-size: 12px;
-    padding: 4px 10px; cursor: pointer; transition: all 0.15s;
-  }
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text2); font-family: 'Noto Sans JP', sans-serif; font-size: 13px; padding: 5px 12px; cursor: pointer; transition: all 0.15s; min-width: 70px; text-align: center; }
+  .copy-btn:active { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: var(--success); color: var(--success); }
-  .result-body { padding: 16px; font-size: 14px; line-height: 1.9; white-space: pre-wrap; color: var(--text); }
-  .hashtag-body { padding: 16px; font-size: 13px; line-height: 2.2; color: var(--accent2); word-break: break-all; }
-  .time-body { padding: 14px 16px; font-size: 13px; color: var(--text2); line-height: 1.8; }
-  .analysis-body { padding: 14px 16px; font-size: 13px; color: var(--text2); line-height: 1.8; }
+  .result-body { padding: 14px; font-size: 14px; line-height: 1.9; white-space: pre-wrap; color: var(--text); }
+  .hashtag-body { padding: 14px; font-size: 13px; line-height: 2.2; color: var(--accent2); word-break: break-all; }
+  .analysis-body { padding: 12px 14px; font-size: 13px; color: var(--text2); line-height: 1.8; }
 
-  .copy-all-btn {
-    width: 100%; padding: 13px; background: var(--surface2);
-    border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--text); font-family: 'Noto Sans JP', sans-serif;
-    font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; margin-bottom: 10px;
-  }
-  .copy-all-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .reset-btn {
-    width: 100%; padding: 11px; background: none;
-    border: 1px solid var(--border); border-radius: var(--radius);
-    color: var(--text3); font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px; cursor: pointer; transition: all 0.15s;
-  }
-  .reset-btn:hover { color: var(--text2); border-color: var(--text3); }
+  .tips-block { background: rgba(255,179,71,0.06); border: 1px solid rgba(255,179,71,0.2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+  .tips-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .tips-text { font-size: 13px; color: var(--accent2); line-height: 1.7; }
 
-  .err-box {
-    display: none; background: rgba(248,113,113,0.07);
-    border: 1px solid rgba(248,113,113,0.25);
-    border-radius: var(--radius); padding: 14px 16px;
-    font-size: 13px; color: var(--danger); margin-bottom: 16px; line-height: 1.7;
-  }
+  .copy-all-btn { width: 100%; padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; -webkit-appearance: none; }
+  .copy-all-btn:active { border-color: var(--accent); color: var(--accent); }
 
-  footer { text-align: center; padding: 20px; font-size: 11px; color: var(--text3); border-top: 1px solid var(--border); margin-top: 40px; }
+  .reset-btn { width: 100%; padding: 12px; background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text3); font-family: 'Noto Sans JP', sans-serif; font-size: 13px; cursor: pointer; -webkit-appearance: none; }
+
+  .err-box { display: none; background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.25); border-radius: var(--radius); padding: 14px; font-size: 13px; color: var(--danger); margin-bottom: 16px; line-height: 1.7; }
+
+  footer { text-align: center; padding: 20px 16px; font-size: 11px; color: var(--text3); border-top: 1px solid var(--border); margin-top: 40px; }
+
+  @media (max-width: 400px) {
+    .options-row { grid-template-columns: 1fr; }
+    .drop-zone { padding: 32px 16px; }
+  }
 </style>
 </head>
 <body>
@@ -248,7 +227,7 @@
     ondrop="handleDrop(event)">
     <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFile(this.files[0])">
     <span class="drop-icon">📸</span>
-    <div class="drop-title">写真をドロップ、またはタップして選択</div>
+    <div class="drop-title">写真をタップして選択</div>
     <div class="drop-sub">JPG / PNG / WEBP 対応</div>
   </div>
 
@@ -260,25 +239,29 @@
   <div class="options-row">
     <div class="opt-group">
       <label>投稿タイプ</label>
-      <select id="postType">
-        <option value="buy">買取商品紹介</option>
-        <option value="event">イベント・セール</option>
-        <option value="info">お知らせ</option>
-      </select>
+      <div class="select-wrap">
+        <select id="postType">
+          <option value="buy">買取商品紹介</option>
+          <option value="event">イベント・セール</option>
+          <option value="info">お知らせ</option>
+        </select>
+      </div>
     </div>
     <div class="opt-group">
       <label>トーン</label>
-      <select id="tone">
-        <option value="friendly">親しみやすく</option>
-        <option value="professional">プロフェッショナル</option>
-        <option value="pop">ポップ・カジュアル</option>
-      </select>
+      <div class="select-wrap">
+        <select id="tone">
+          <option value="friendly">親しみやすく</option>
+          <option value="professional">プロフェッショナル</option>
+          <option value="pop">ポップ・カジュアル</option>
+        </select>
+      </div>
     </div>
   </div>
 
   <div class="extra-wrap">
-    <label>補足（価格・状態・アピールポイントなど）任意</label>
-    <input type="text" id="extra" placeholder="例：28000円、美品、付属品完備">
+    <label>補足（型番・価格・状態など）任意</label>
+    <input type="text" id="extra" placeholder="例：ダイワ イグジスト、28000円、美品">
   </div>
 
   <button class="gen-btn" id="genBtn" onclick="generate()">📝 投稿文を自動生成する</button>
@@ -313,9 +296,9 @@
       <div class="hashtag-body" id="hashtagOut"></div>
     </div>
 
-    <div class="result-block">
-      <div class="result-head"><span class="result-label">おすすめ投稿時間</span></div>
-      <div class="time-body" id="timeOut"></div>
+    <div class="tips-block">
+      <div class="tips-label">💡 投稿 Tips</div>
+      <div class="tips-text" id="tipsText"></div>
     </div>
 
     <button class="copy-all-btn" onclick="copyAll()">📋 キャプション＋ハッシュタグを全コピー</button>
@@ -325,13 +308,35 @@
 
 </main>
 
-<footer>飯塚BASE Instagram投稿ジェネレーター — ブラウザ完結型</footer>
+<footer>飯塚BASE Instagram投稿ジェネレーター</footer>
 
 <script>
 let currentFile = null;
 let currentMediaType = 'image/jpeg';
 let lastCaption = '';
 let lastHashtag = '';
+
+const TIPS = [
+  '投稿直後の30分以内にコメント返信すると、アルゴリズムに好まれやすくなります。',
+  'ストーリーズと投稿を同日に出すとリーチが上がりやすいです。',
+  '写真は自然光で撮ると見栄えが格段に良くなります。背景は白や木目がおすすめ。',
+  'ハッシュタグは投稿文末ではなく、最初のコメントに入れる方法も効果的です。',
+  '週3〜4回の定期投稿がフォロワー増加に最も効果的と言われています。',
+  '商品の使用シーンを想像させる文章は、問い合わせ率を高める効果があります。',
+  'リールとフィード投稿を交互に出すと、異なる層にリーチできます。',
+  '火・木・土の19〜21時は一般的にエンゲージメントが高い時間帯です。',
+  'プロフィールのリンクを問い合わせ先に設定すると問い合わせが増えます。',
+  '同じカテゴリの商品をまとめて「新着〇点入荷！」と投稿するのも反応が良いです。',
+  'コメントに質問を入れると（「気になる方はDMへ！」など）エンゲージメントが上がります。',
+  'フォロワーの多いローカルアカウントをタグ付けすると拡散されやすくなります。',
+  '投稿の最初の1〜2行が最も重要です。続きを読みたくなる書き出しを意識しましょう。',
+  'カメラロールの整理を兼ねて、週に1回まとめて撮影すると効率的です。',
+  'Googleレンズで型番を調べて補足欄に入れると、より正確な投稿文が生成されます。',
+];
+
+function getRandomTip() {
+  return TIPS[Math.floor(Math.random() * TIPS.length)];
+}
 
 function saveKey() {
   const key = document.getElementById('apiKeyInput').value.trim();
@@ -418,8 +423,10 @@ async function generate() {
 トーン: ${toneLabel}
 ${extra ? `補足情報: ${extra}` : ''}
 
+重要ルール：captionにはハッシュタグ（#から始まる単語）を絶対に含めないこと。ハッシュタグはhashtagsフィールドにのみ入れること。
+
 必ず以下のJSON形式のみで返してください。余計なテキスト・マークダウン・バッククォートは一切不要です：
-{"analysis":"写真から読み取った商品情報（カテゴリ・ブランド・状態・特徴など具体的に2〜3文・日本語）","caption":"投稿キャプション本文（改行あり・絵文字使用・200〜300文字・日本語）","hashtags":"ハッシュタグ（スペース区切り・15〜20個・#から始まる・日本語メイン）"}`;
+{"analysis":"写真から読み取った商品情報（カテゴリ・ブランド・状態・特徴など具体的に2〜3文・日本語）","caption":"投稿キャプション本文のみ（改行あり・絵文字使用・200〜300文字・日本語・ハッシュタグは含めない）","hashtags":"ハッシュタグのみ（スペース区切り・15〜20個・#から始まる・日本語メイン）"}`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -444,7 +451,7 @@ ${extra ? `補足情報: ${extra}` : ''}
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      if (res.status === 401) throw new Error('APIキーが正しくありません。確認してください。');
+      if (res.status === 401) throw new Error('APIキーが正しくありません。新しいキーを発行して入力してください。');
       if (res.status === 429) throw new Error('リクエストが多すぎます。少し待ってから再試行してください。');
       throw new Error('エラー (HTTP ' + res.status + '): ' + (err.error?.message || '不明') + ' / キーを再確認してください');
     }
@@ -455,13 +462,14 @@ ${extra ? `補足情報: ${extra}` : ''}
     if (!match) throw new Error('レスポンスの解析に失敗しました。もう一度お試しください。');
     const parsed = JSON.parse(match[0]);
 
-    lastCaption = parsed.caption || '';
+    lastCaption = (parsed.caption || '').replace(/#\S+/g, '').trim();
     lastHashtag = parsed.hashtags || '';
 
     document.getElementById('analysisOut').textContent = parsed.analysis || '';
     document.getElementById('captionOut').textContent = lastCaption;
     document.getElementById('hashtagOut').textContent = lastHashtag;
-    document.getElementById('timeOut').textContent = getTimeText(postType);
+    document.getElementById('tipsText').textContent = getRandomTip();
+
     document.getElementById('loadingWrap').style.display = 'none';
     document.getElementById('resultSection').style.display = 'block';
     document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -481,10 +489,6 @@ function fileToBase64(file) {
     reader.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
     reader.readAsDataURL(file);
   });
-}
-
-function getTimeText(type) {
-  return { buy:'🕐 火・木・土の 12:00〜13:00 または 19:00〜21:00\n昼休みや夜のスマホ時間帯が効果的です', event:'🕐 イベント3〜5日前に投稿 + 当日朝 8:00〜9:00\n早めの告知と当日リマインドが鉄則です', info:'🕐 月曜または水曜の 10:00〜11:00\n週初め・週中のチェック習慣に乗せましょう' }[type];
 }
 
 function showErr(msg) {
