@@ -430,7 +430,7 @@ ${extra ? `補足情報: ${extra}` : ''}
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -446,7 +446,7 @@ ${extra ? `補足情報: ${extra}` : ''}
       const err = await res.json().catch(() => ({}));
       if (res.status === 401) throw new Error('APIキーが正しくありません。確認してください。');
       if (res.status === 429) throw new Error('リクエストが多すぎます。少し待ってから再試行してください。');
-      throw new Error(err.error?.message || `エラー (HTTP ${res.status})`);
+      throw new Error('エラー (HTTP ' + res.status + '): ' + (err.error?.message || '不明') + ' / キーを再確認してください');
     }
 
     const data = await res.json();
