@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram投稿ジェネレーター｜飯塚BASE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #ff6b35;
+    --accent2: #ffb347;
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #555;
+    --success: #4ade80;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    background: rgba(15,15,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-left: auto;
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .status-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .status-dot.loading { background: var(--accent2); animation: pulse 1.2s infinite; }
+  .status-dot.ready { background: var(--success); }
+  .status-dot.error { background: #f87171; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .status-text { color: var(--text2); flex: 1; }
+  .status-text strong { color: var(--text); }
+
+  .drop-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    margin-bottom: 20px;
+  }
+  .drop-zone:hover, .drop-zone.drag {
+    border-color: var(--accent);
+    background: rgba(255,107,53,0.05);
+  }
+  .drop-zone input { display: none; }
+
+  .drop-icon {
+    font-size: 40px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .drop-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .drop-sub {
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  #previewWrap {
+    display: none;
+    margin-bottom: 20px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  #previewImg {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    background: var(--surface);
+    display: block;
+  }
+
+  .preview-change {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  .preview-change:hover { color: var(--text); }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .option-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  select, input[type=text] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  select:focus, input[type=text]:focus { border-color: var(--accent); }
+
+  .extra-wrap {
+    margin-bottom: 20px;
+  }
+  .extra-wrap label {
+    display: block;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .gen-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    color: #000;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-bottom: 28px;
+  }
+  .gen-btn:hover { opacity: 0.9; }
+  .gen-btn:active { transform: scale(0.99); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .progress-wrap {
+    display: none;
+    margin-bottom: 28px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .result-section {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  .result-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .result-label {
+    font-size: 12px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+  .result-body {
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+
+  .hashtag-body {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 2.2;
+    color: var(--accent2);
+    word-break: break-all;
+  }
+
+  .time-body {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  .copy-all-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 12px;
+  }
+  .copy-all-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text3);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { color: var(--text2); border-color: var(--text3); }
+
+  .err-box {
+    display: none;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #f87171;
+    margin-bottom: 16px;
+  }
+
+  .analysis-tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: var(--text2);
+    margin: 2px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--text3);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">INSTA POST GEN</div>
+  <div class="logo-sub">飯塚BASE専用</div>
+</header>
+
+<main>
+
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <div class="status-text" id="statusText">「生成する」を押すと自動でAIモデルを読み込みます</div>
+  </div>
+
+  <div class="drop-zone" id="dropZone"
+    onclick="document.getElementById('fileInput').click()"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="handleDrop(event)">
+    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files[0])">
+    <span class="drop-icon">📸</span>
+    <div class="drop-title">写真をドロップ、またはタップして選択</div>
+    <div class="drop-sub">JPG / PNG / WEBP 対応</div>
+  </div>
+
+  <div id="previewWrap">
+    <img id="previewImg" alt="プレビュー">
+    <button class="preview-change" onclick="resetPhoto()">変更</button>
+  </div>
+
+  <div class="options-grid">
+    <div class="option-group">
+      <label>投稿タイプ</label>
+      <select id="postType">
+        <option value="buy">買取商品紹介</option>
+        <option value="event">イベント・セール</option>
+        <option value="info">お知らせ</option>
+      </select>
+    </div>
+    <div class="option-group">
+      <label>トーン</label>
+      <select id="tone">
+        <option value="friendly">親しみやすく</option>
+        <option value="professional">プロフェッショナル</option>
+        <option value="pop">ポップ・カジュアル</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="extra-wrap">
+    <label>補足（価格・状態・アピールポイントなど）</label>
+    <input type="text" id="extra" placeholder="例：28000円、美品、付属品完備">
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">📝 投稿文を自動生成する</button>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressLabel">AIモデルを読み込み中...</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="err-box" id="errBox"></div>
+
+  <div class="result-section" id="resultSection">
+
+    <div class="result-block">
+      <div class="result-header">
+        <span class="result-label">AIが読み取った情報</span>
+      </div>
+      <div class="result-body" id="analysisOut" style="font-size:13px; color:var(--text2);"></div>
+    </div>
+
+    <div class="result-block">
+      <div class="result-header">
+        <span class="result-label">キャプション</span>
+        <button class="copy-btn" onclick="copyEl('captionOut', this)">コピー</button>
+      </div>
+      <div class="result-body" id="captionOut"></div>
+    </div>
+
+    <div class="result-block">
+      <div class="result-header">
+        <span class="result-label">ハッシュタグ</span>
+        <button class="copy-btn" onclick="copyEl('hashtagOut', this)">コピー</button>
+      </div>
+      <div class="hashtag-body" id="hashtagOut"></div>
+    </div>
+
+    <div class="result-block">
+      <div class="result-header">
+        <span class="result-label">おすすめ投稿時間</span>
+      </div>
+      <div class="time-body" id="timeOut"></div>
+    </div>
+
+    <button class="copy-all-btn" onclick="copyAll()">📋 キャプション＋ハッシュタグを全コピー</button>
+    <button class="reset-btn" onclick="resetAll()">別の写真でやり直す</button>
+
+  </div>
+
+</main>
+
+<footer>飯塚BASE Instagram投稿ジェネレーター — ブラウザ完結型・完全無料</footer>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3/dist/transformers.min.js';
+
+env.allowLocalModels = false;
+
+let classifier = null;
+let modelLoading = false;
+let currentFile = null;
+
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const progressWrap = document.getElementById('progressWrap');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const progressPct = document.getElementById('progressPct');
+
+function setStatus(type, msg) {
+  statusDot.className = 'status-dot ' + type;
+  statusText.innerHTML = msg;
+}
+
+function showProgress(label, pct) {
+  progressWrap.style.display = 'block';
+  progressLabel.textContent = label;
+  progressPct.textContent = Math.round(pct) + '%';
+  progressFill.style.width = pct + '%';
+}
+
+function hideProgress() {
+  progressWrap.style.display = 'none';
+}
+
+async function loadModel() {
+  if (classifier) return classifier;
+  if (modelLoading) return null;
+  modelLoading = true;
+
+  setStatus('loading', 'AIモデルを読み込み中... <strong>初回のみ時間がかかります</strong>');
+  showProgress('モデルをダウンロード中...', 5);
+
+  try {
+    classifier = await pipeline(
+      'image-classification',
+      'Xenova/vit-base-patch16-224',
+      {
+        progress_callback: (info) => {
+          if (info.status === 'downloading') {
+            const pct = info.total ? (info.loaded / info.total * 80) : 20;
+            showProgress(`モデルをダウンロード中... (${Math.round((info.loaded||0)/1024/1024)}MB)`, 5 + pct * 0.8);
+          }
+          if (info.status === 'loading') {
+            showProgress('モデルを初期化中...', 88);
+          }
+        }
+      }
+    );
+    showProgress('準備完了！', 100);
+    setTimeout(hideProgress, 800);
+    setStatus('ready', '<strong>AIモデル準備完了</strong> — 写真をアップロードして生成できます');
+    modelLoading = false;
+    return classifier;
+  } catch(e) {
+    setStatus('error', 'モデルの読み込みに失敗しました: ' + e.message);
+    hideProgress();
+    modelLoading = false;
+    return null;
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) handleFile(file);
+}
+
+function handleFile(file) {
+  if (!file) return;
+  currentFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('previewImg').src = url;
+  document.getElementById('previewWrap').style.display = 'block';
+  document.getElementById('dropZone').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+}
+
+function resetPhoto() {
+  currentFile = null;
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('dropZone').style.display = 'block';
+  document.getElementById('fileInput').value = '';
+}
+
+function getPostLabels(predictions) {
+  const labels = predictions.slice(0, 5).map(p => p.label.toLowerCase().replace(/_/g,' '));
+  const labelStr = labels.join(', ');
+
+  const categoryMap = [
+    { keys: ['bag','handbag','purse','backpack','suitcase'], ja: 'バッグ・鞄' },
+    { keys: ['watch','clock','wristwatch'], ja: '時計' },
+    { keys: ['camera','lens','tripod','binoculars'], ja: 'カメラ・光学機器' },
+    { keys: ['laptop','computer','keyboard','mouse','monitor','phone','mobile','television','tv','remote'], ja: '電化製品・家電' },
+    { keys: ['guitar','violin','piano','drum','saxophone','instrument'], ja: '楽器' },
+    { keys: ['shoe','boot','sneaker','sandal'], ja: '靴・フットウェア' },
+    { keys: ['jacket','coat','suit','shirt','dress','clothing','uniform'], ja: '衣類・ファッション' },
+    { keys: ['necklace','ring','bracelet','earring','jewelry'], ja: 'ジュエリー・アクセサリー' },
+    { keys: ['book','magazine'], ja: '本・雑誌' },
+    { keys: ['game','toy','doll','lego'], ja: 'ゲーム・ホビー' },
+    { keys: ['golf','tennis','bicycle','ski','snowboard','sport'], ja: 'スポーツ用品' },
+  ];
+
+  let detected = 'リサイクル商品';
+  for (const cat of categoryMap) {
+    if (cat.keys.some(k => labelStr.includes(k))) {
+      detected = cat.ja;
+      break;
+    }
+  }
+
+  const confidence = Math.round(predictions[0].score * 100);
+  const topLabel = predictions[0].label.replace(/_/g, ' ');
+
+  return { detected, topLabel, confidence, labels };
+}
+
+function buildCaption(category, tone, postType, extra, confidence) {
+  const toneEmoji = { friendly: '😊', professional: '✨', pop: '🎉' }[tone];
+  const typeLabel = { buy: '買取商品紹介', event: 'イベント・セール', info: 'お知らせ' }[postType];
+
+  const intros = {
+    friendly: {
+      buy: `${toneEmoji} 本日の買取商品のご紹介です！\n\n今回入荷したのは【${category}】です。\n状態も良く、お値打ち価格でご提供しています。`,
+      event: `${toneEmoji} お得なイベント開催中です！\n\nぜひこの機会をお見逃しなく。`,
+      info: `${toneEmoji} お知らせです！\n\n飯塚BASEからの大切なご連絡です。`
+    },
+    professional: {
+      buy: `✨ 新着入荷情報\n\n【${category}】が入荷いたしました。\n状態・品質ともに自信を持ってご提供できる一品です。`,
+      event: `✨ 特別イベント開催のご案内\n\nお客様にとってお得な機会をご用意いたしました。`,
+      info: `✨ 重要なお知らせ\n\n飯塚BASEよりご案内申し上げます。`
+    },
+    pop: {
+      buy: `🎉 新着キタ〜〜〜！！\n\n【${category}】が入荷しましたよ〜！\nこれはお見逃しなく！！`,
+      event: `🎉 やばいセール開催中〜〜！！\n\nこれ見た人はラッキー！お得すぎるイベントです！`,
+      info: `🎉 大事なお知らせ〜！\n\n飯塚BASEからのお知らせです！チェックしてね！`
+    }
+  };
+
+  let body = intros[tone][postType];
+
+  if (extra) {
+    body += `\n\n📌 ${extra}`;
+  }
+
+  const outros = {
+    friendly: '\n\n気になる方はお気軽にDMまたは店頭へどうぞ🙌\n\n▶ 飯塚BASEで毎日新着更新中！',
+    professional: '\n\nお問い合わせはDMまたは店頭スタッフまでお気軽にどうぞ。\n\n飯塚BASE — 毎日新着入荷中',
+    pop: '\n\n気になったらDMしてね〜！！店頭でも待ってるよ〜🔥\n\n飯塚BASEは毎日新着あるよ！フォローしてね！'
+  };
+
+  body += outros[tone];
+  return body;
+}
+
+function buildHashtags(category, postType) {
+  const base = ['#飯塚BASE', '#飯塚', '#リサイクルショップ', '#リユース', '#中古', '#買取', '#福岡', '#掘り出し物', '#お買い物'];
+  const typeExtra = {
+    buy: ['#新着入荷', '#買取商品', '#お値打ち', '#中古品'],
+    event: ['#セール', '#お得情報', '#割引', '#イベント'],
+    info: ['#お知らせ', '#営業情報', '#新情報']
+  };
+  const catMap = {
+    'バッグ・鞄': ['#バッグ', '#ブランドバッグ', '#鞄'],
+    '時計': ['#時計', '#ウォッチ', '#腕時計'],
+    'カメラ・光学機器': ['#カメラ', '#カメラ好き', '#写真好き'],
+    '電化製品・家電': ['#家電', '#電化製品', '#ガジェット'],
+    '楽器': ['#楽器', '#音楽好き'],
+    '靴・フットウェア': ['#スニーカー', '#靴', '#シューズ'],
+    '衣類・ファッション': ['#古着', '#ファッション', '#コーデ'],
+    'ジュエリー・アクセサリー': ['#ジュエリー', '#アクセサリー'],
+    '本・雑誌': ['#本', '#読書', '#本好き'],
+    'ゲーム・ホビー': ['#ゲーム', '#ホビー', '#ゲーム好き'],
+    'スポーツ用品': ['#スポーツ', '#アウトドア'],
+    'リサイクル商品': ['#エコ', '#サステナブル']
+  };
+
+  const tags = [...base, ...(typeExtra[postType] || []), ...(catMap[category] || [])];
+  return [...new Set(tags)].slice(0, 20).join(' ');
+}
+
+function getTimeText(postType) {
+  return {
+    buy: '🕐 火・木・土の 12:00〜13:00 または 19:00〜21:00\n昼休みや夜のスマホ時間帯が効果的です',
+    event: '🕐 イベント3〜5日前に投稿 + 当日朝 8:00〜9:00\n早めの告知と当日リマインドが鉄則です',
+    info: '🕐 月曜または水曜の 10:00〜11:00\n週初め・週中のチェック習慣に乗せましょう'
+  }[postType];
+}
+
+async function generate() {
+  if (!currentFile) {
+    showErr('写真を選択してください');
+    return;
+  }
+
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('genBtn').disabled = true;
+
+  const clf = await loadModel();
+  if (!clf) {
+    document.getElementById('genBtn').disabled = false;
+    return;
+  }
+
+  try {
+    setStatus('loading', '写真を解析中...');
+    showProgress('画像を解析中...', 92);
+
+    const imageUrl = URL.createObjectURL(currentFile);
+    const results = await clf(imageUrl, { topk: 10 });
+
+    showProgress('投稿文を生成中...', 98);
+
+    const postType = document.getElementById('postType').value;
+    const tone = document.getElementById('tone').value;
+    const extra = document.getElementById('extra').value.trim();
+
+    const { detected, topLabel, confidence, labels } = getPostLabels(results);
+    const caption = buildCaption(detected, tone, postType, extra, confidence);
+    const hashtags = buildHashtags(detected, postType);
+    const timeText = getTimeText(postType);
+
+    document.getElementById('analysisOut').textContent =
+      `カテゴリ: ${detected}\n検出ラベル: ${labels.slice(0,3).join(' / ')}\n信頼度: ${confidence}%`;
+    document.getElementById('captionOut').textContent = caption;
+    document.getElementById('hashtagOut').textContent = hashtags;
+    document.getElementById('timeOut').textContent = timeText;
+
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    hideProgress();
+    setStatus('ready', '<strong>生成完了！</strong> コピーしてInstagramに貼り付けてください');
+
+  } catch(e) {
+    showErr('解析中にエラーが発生しました: ' + e.message);
+    setStatus('error', 'エラーが発生しました');
+    hideProgress();
+  }
+
+  document.getElementById('genBtn').disabled = false;
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errBox');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function copyEl(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent);
+  btn.textContent = 'コピー済み！';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+}
+
+function copyAll() {
+  const caption = document.getElementById('captionOut').textContent;
+  const hashtags = document.getElementById('hashtagOut').textContent;
+  navigator.clipboard.writeText(caption + '\n\n' + hashtags);
+}
+
+function resetAll() {
+  resetPhoto();
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('extra').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.handleDrop = handleDrop;
+window.handleFile = handleFile;
+window.resetPhoto = resetPhoto;
+window.generate = generate;
+window.copyEl = copyEl;
+window.copyAll = copyAll;
+window.resetAll = resetAll;
+</script>
+</body>
+</html>
